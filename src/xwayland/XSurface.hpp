@@ -9,6 +9,17 @@
 class CWLSurfaceResource;
 class CXWaylandSurfaceResource;
 
+enum class eX11ResizeEdge : uint8_t {
+    TOP_LEFT = 0,
+    TOP,
+    TOP_RIGHT,
+    RIGHT,
+    BOTTOM_RIGHT,
+    BOTTOM,
+    BOTTOM_LEFT,
+    LEFT,
+};
+
 #ifdef NO_XWAYLAND
 using xcb_pixmap_t = uint32_t;
 using xcb_window_t = uint32_t;
@@ -45,21 +56,23 @@ class CXWaylandSurface {
     WP<CXWaylandSurfaceResource> m_resource;
 
     struct {
-        CSignalT<>     stateChanged;    // maximized, fs, minimized, etc.
-        CSignalT<>     metadataChanged; // title, appid
-        CSignalT<>     destroy;
+        CSignalT<>               stateChanged;    // maximized, fs, minimized, etc.
+        CSignalT<>               metadataChanged; // title, appid
+        CSignalT<>               destroy;
 
-        CSignalT<>     resourceChange; // associated / dissociated
+        CSignalT<>               resourceChange; // associated / dissociated
 
-        CSignalT<>     setGeometry;
-        CSignalT<CBox> configureRequest;
+        CSignalT<>               setGeometry;
+        CSignalT<CBox>           configureRequest;
 
-        CSignalT<>     map;
-        CSignalT<>     unmap;
-        CSignalT<>     commit;
-        CSignalT<>     pong;
+        CSignalT<>               map;
+        CSignalT<>               unmap;
+        CSignalT<>               commit;
+        CSignalT<>               pong;
 
-        CSignalT<>     activate;
+        CSignalT<>               activate;
+        CSignalT<>               moveRequest;
+        CSignalT<eX11ResizeEdge> resizeRequest;
     } m_events;
 
     struct {

@@ -133,6 +133,21 @@ static bool traitsEqual(const SBackendTraits& lhs, const SBackendTraits& rhs) {
         lhs.preventsFocus == rhs.preventsFocus && lhs.suggestsNoBorder == rhs.suggestsNoBorder && lhs.fullscreen == rhs.fullscreen;
 }
 
+static eBackendResizeEdge normalizeResizeEdge(eX11ResizeEdge edge) {
+    switch (edge) {
+        case eX11ResizeEdge::TOP_LEFT: return eBackendResizeEdge::BACKEND_RESIZE_EDGE_TOP_LEFT;
+        case eX11ResizeEdge::TOP: return eBackendResizeEdge::BACKEND_RESIZE_EDGE_TOP;
+        case eX11ResizeEdge::TOP_RIGHT: return eBackendResizeEdge::BACKEND_RESIZE_EDGE_TOP_RIGHT;
+        case eX11ResizeEdge::RIGHT: return eBackendResizeEdge::BACKEND_RESIZE_EDGE_RIGHT;
+        case eX11ResizeEdge::BOTTOM_RIGHT: return eBackendResizeEdge::BACKEND_RESIZE_EDGE_BOTTOM_RIGHT;
+        case eX11ResizeEdge::BOTTOM: return eBackendResizeEdge::BACKEND_RESIZE_EDGE_BOTTOM;
+        case eX11ResizeEdge::BOTTOM_LEFT: return eBackendResizeEdge::BACKEND_RESIZE_EDGE_BOTTOM_LEFT;
+        case eX11ResizeEdge::LEFT: return eBackendResizeEdge::BACKEND_RESIZE_EDGE_LEFT;
+    }
+
+    return eBackendResizeEdge::BACKEND_RESIZE_EDGE_NONE;
+}
+
 CX11Backend::CX11Backend(SP<CXWaylandSurface> surface) : m_xwaylandSurface(surface) {
     if (!surface)
         return;
@@ -209,12 +224,14 @@ CX11Backend::CX11Backend(SP<CXWaylandSurface> surface) : m_xwaylandSurface(surfa
     });
     m_listeners.configureRequest =
         surface->m_events.configureRequest.listen([this](const CBox& box) { m_events.configureRequest.emit(clientToLogical(box, preferredMonitor(nullptr))); });
-    m_listeners.setGeometry = surface->m_events.setGeometry.listen([this] {
+    m_listeners.setGeometry   = surface->m_events.setGeometry.listen([this] {
         updateGeometry(true);
         updateTraits(true);
     });
-    m_listeners.activate    = surface->m_events.activate.listen([this] { m_events.activationRequest.emit(); });
-    m_listeners.pong        = surface->m_events.pong.listen([this] { m_events.pong.emit(); });
+    m_listeners.activate      = surface->m_events.activate.listen([this] { m_events.activationRequest.emit(); });
+    m_listeners.moveRequest   = surface->m_events.moveRequest.listen([this] { m_events.moveRequest.emit(); });
+    m_listeners.resizeRequest = surface->m_events.resizeRequest.listen([this](eX11ResizeEdge edge) { m_events.resizeRequest.emit(normalizeResizeEdge(edge)); });
+    m_listeners.pong          = surface->m_events.pong.listen([this] { m_events.pong.emit(); });
 }
 
 void CX11Backend::attach(PHLWINDOWREF window) {

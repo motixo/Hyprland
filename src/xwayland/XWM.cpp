@@ -485,6 +485,17 @@ void CXWM::handleClientMessage(xcb_client_message_event_t* e) {
         XSURF->m_events.stateChanged.emit();
     } else if (e->type == HYPRATOMS["_NET_ACTIVE_WINDOW"]) {
         XSURF->m_events.activate.emit();
+    } else if (e->type == HYPRATOMS["_NET_WM_MOVERESIZE"]) {
+        if (e->format != 32 || XSURF->m_overrideRedirect)
+            return;
+
+        const auto DIRECTION = e->data.data32[2];
+        if (DIRECTION <= 7)
+            XSURF->m_events.resizeRequest.emit(sc<eX11ResizeEdge>(DIRECTION));
+        else if (DIRECTION == 8)
+            XSURF->m_events.moveRequest.emit();
+        else
+            return;
     } else if (e->type == HYPRATOMS["XdndStatus"]) {
         if (m_dndDataOffers.empty() || !m_dndDataOffers.at(0)->getSource()) {
             LOG(Log::TRACE, "[xwm] Rejecting XdndStatus message: nothing to get");
