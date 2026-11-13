@@ -73,6 +73,7 @@ class CXWaylandSurface {
         CSignalT<>               activate;
         CSignalT<>               moveRequest;
         CSignalT<eX11ResizeEdge> resizeRequest;
+        CSignalT<>               cancelDragRequest;
     } m_events;
 
     struct {

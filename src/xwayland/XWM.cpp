@@ -16,6 +16,7 @@
 #include "../Compositor.hpp"
 #include "../protocols/core/Seat.hpp"
 #include "../managers/eventLoop/EventLoopManager.hpp"
+#include "../managers/input/InputManager.hpp"
 #include "../managers/SeatManager.hpp"
 #include "../helpers/env/Env.hpp"
 #include "../helpers/string/StringUtils.hpp"
@@ -490,12 +491,14 @@ void CXWM::handleClientMessage(xcb_client_message_event_t* e) {
             return;
 
         const auto DIRECTION = e->data.data32[2];
-        if (DIRECTION <= 7)
-            XSURF->m_events.resizeRequest.emit(sc<eX11ResizeEdge>(DIRECTION));
-        else if (DIRECTION == 8)
-            XSURF->m_events.moveRequest.emit();
-        else
+        if (DIRECTION == 11)
+            XSURF->m_events.cancelDragRequest.emit();
+        else if (DIRECTION > 8 || !g_pInputManager->hasHeldButtons())
             return;
+        else if (DIRECTION <= 7)
+            XSURF->m_events.resizeRequest.emit(sc<eX11ResizeEdge>(DIRECTION));
+        else
+            XSURF->m_events.moveRequest.emit();
     } else if (e->type == HYPRATOMS["XdndStatus"]) {
         if (m_dndDataOffers.empty() || !m_dndDataOffers.at(0)->getSource()) {
             LOG(Log::TRACE, "[xwm] Rejecting XdndStatus message: nothing to get");

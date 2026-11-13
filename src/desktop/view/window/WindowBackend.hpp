@@ -147,6 +147,7 @@ namespace Desktop::View {
             CSignalT<>                       activationRequest;
             CSignalT<>                       moveRequest;
             CSignalT<eBackendResizeEdge>     resizeRequest;
+            CSignalT<>                       cancelDragRequest;
             CSignalT<>                       pong;
             CSignalT<SP<IPopupBackend>>      newPopup;
         } m_events;

@@ -145,6 +145,10 @@ void CWindow::attachBackendListeners() {
     m_backendListeners.activationRequest = m_backend->m_events.activationRequest.listen([this] { onActivationRequest(); });
     m_backendListeners.moveRequest       = m_backend->m_events.moveRequest.listen([this] { onMoveRequest(); });
     m_backendListeners.resizeRequest     = m_backend->m_events.resizeRequest.listen([this](eBackendResizeEdge edge) { onResizeRequest(edge); });
+    m_backendListeners.cancelDragRequest = m_backend->m_events.cancelDragRequest.listen([this] {
+        if (const auto TARGET = g_layoutManager->dragController()->target(); TARGET && TARGET->window() == m_self)
+            g_layoutManager->endDragTarget();
+    });
     m_backendListeners.newPopup          = m_backend->m_events.newPopup.listen([this](const auto& popup) {
         if (popupHead())
             popupHead()->onNewPopup(popup);

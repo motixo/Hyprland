@@ -83,6 +83,7 @@ namespace Desktop::View {
             CHyprSignalListener activate;
             CHyprSignalListener moveRequest;
             CHyprSignalListener resizeRequest;
+            CHyprSignalListener cancelDragRequest;
             CHyprSignalListener pong;
         } m_listeners;
     };

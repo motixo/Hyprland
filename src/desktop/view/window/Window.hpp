@@ -316,6 +316,7 @@ namespace Desktop::View {
             CHyprSignalListener activationRequest;
             CHyprSignalListener moveRequest;
             CHyprSignalListener resizeRequest;
+            CHyprSignalListener cancelDragRequest;
             CHyprSignalListener newPopup;
         } m_backendListeners;
     };
